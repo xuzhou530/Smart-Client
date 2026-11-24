@@ -1,313 +1,320 @@
-# Smart-Client AI Workspace
+# Smart-Client 智能工作台
 
-A unified AI application platform that brings together LLMs, agents, workflow orchestration, knowledge bases, skills, and MCP services.
+聚合「大模型 + 智能体 + 工作流编排 + 知识库 + 技能 + MCP 服务」的一体化 AI 应用平台。
 
-In a single workspace, users can connect multiple model providers, compose workflows / Chatflows on a canvas, attach knowledge bases, skills and MCP tools to agents, then publish applications through Web pages, APIs, Webhooks and MCP endpoints — and review real call volume, latency and cost on the monitoring page.
-
----
-
-## 1. Feature Overview
-
-| Module | Capabilities |
-|---|---|
-| Chat | Multi-session streaming chat (SSE), prompt enhancement, message feedback, stop generation, source citation display |
-| Studio (Apps) | Workflow / Chatflow app list, create blank app, orchestrate → test run → publish |
-| Workflow Orchestration | Canvas nodes: Start / Knowledge Retrieval / LLM / Agent Collaboration / ANSWER / Conditional Branch / HTTP Request / Code Execution / MCP Tool |
-| Agents | Agent config (prompt, model, temperature, history length, skills, knowledge bases, MCP tools), draft / publish / take offline, import & export |
-| Agent Forge | One-line requirement → clarifying Q&A → plan generation → confirmation → publish as agent, with SSE events throughout |
-| Knowledge Base | Creation wizard, pipeline orchestration, multi-format ingestion (PDF/Word/Excel/TXT/MD/CSV/JSON/HTML), chunking & vectorization, recall testing, external API |
-| Skills | Skill list / detail, SKILL.md description & file tree management, zip import, test run, publish to Capability Hub |
-| MCP Services | Connect MCP services (http / sse / stdio), tool list sync & on-demand enable, single-tool debugging, invocation logs |
-| Model Access | Model CRUD, provider credentials, price per 1K tokens, enable / publish / take offline |
-| Provider Market | 17 preset providers: browse → install → enter credentials → probe validation → pull models → set default → publish |
-| Integrations | Triggers (scheduled / Webhook), Agent policies (guardrail / rate limit / model routing), extensions, custom endpoints, workspace members |
-| Capability Hub / My Capabilities | Aggregation of published agents, skills, knowledge bases and MCP services |
-| Ops & Monitoring | App logs (session-level detail), monitoring page (call volume, failure rate, tokens, cost), annotations, daily stat aggregation |
-| Plugin Market | Sync Dify plugin market entries, whitelist management, install mapping to native capabilities |
-| Misc | Login / sign-up, audit logs, font scaling, secure transport (toggleable), Electron desktop shell |
+用户可以在一个工作台里接入多家模型供应商，用画布编排工作流 / Chatflow，给智能体挂上知识库、技能与 MCP 工具，
+再通过 Web 页面、API、Webhook、MCP 等入口把应用发布出去，并在监控页看到真实的调用量、耗时与费用。
 
 ---
 
-## 2. Tech Stack
+## 一、功能总览
 
-**Backend**
+| 模块                      | 能力                                                         |
+| ------------------------- | ------------------------------------------------------------ |
+| 对话                      | 多会话流式对话（SSE）、提示词增强、消息反馈、停止生成、引用来源展示 |
+| 工作室（应用）            | 工作流 / Chatflow 应用列表，创建空白应用，编排 → 测试运行 → 发布 |
+| 工作流编排                | 画布编排节点：开始 / 知识检索 / LLM / Agent 协作 / ANSWER / 条件分支 / HTTP 请求 / 代码执行 / MCP 工具 |
+| 智能体                    | 智能体配置（提示词、模型、温度、历史条数、技能、知识库、MCP 工具）、草稿 / 发布 / 下线、导入导出 |
+| 智能体生成（Agent Forge） | 一句话需求 → 澄清问答 → 方案生成 → 确认 → 发布为智能体，全流程 SSE 推送 |
+| 知识库                    | 创建向导、流水线编排、多格式文档入库（PDF/Word/Excel/TXT/MD/CSV/JSON/HTML）、分段与向量化、召回测试、外部 API |
+| 技能                      | 技能列表 / 详情、SKILL.md 描述与文件树管理、zip 包导入、测试运行、发布到能力广场 |
+| MCP 服务                  | 接入 MCP 服务（http / sse / stdio）、工具清单同步与按需启用、单工具调试、调用日志 |
+| 模型接入                  | 模型 CRUD、供应商凭据、每千 token 单价、启用 / 发布 / 下线   |
+| 模型供应商市场            | 17 家预置供应商：市场浏览 → 安装 → 填凭证 → 探测校验 → 拉取模型 → 设为默认 → 发布 |
+| 集成                      | 触发器（定时 / Webhook）、Agent 策略（护栏 / 限流 / 模型路由）、扩展、自定义端点、工作空间成员 |
+| 能力广场 / 我的能力       | 聚合已发布的智能体、技能、知识库、MCP 服务                   |
+| 运维监控                  | 应用日志（会话级明细）、监测页（调用量、失败率、token、费用）、标注、每日统计汇总 |
+| 插件市场                  | 同步 Dify 插件市场条目、白名单管理、安装映射到原生能力       |
+| 其他                      | 登录注册、审计日志、字体缩放、安全传输（可开关）、Electron 桌面壳 |
+
+---
+
+## 二、技术栈
+
+**后端**
+
 - Java 21 / Spring Boot 3.3.5
-- MyBatis-Plus 3.5.6 (soft delete, auto-filled timestamps)
-- MySQL 8 + Redis (login state & rate-limit counters)
-- Sa-Token 1.38 (JWT mode, request header `satoken`)
-- WebFlux WebClient (calling models / MCP, pooled connections)
-- PDFBox 2.0.31 + POI-OOXML 5.2.5 (document parsing)
-- Unified response wrapper `{ code, message, data }`
+- MyBatis-Plus 3.5.6（逻辑删除、自动填充时间）
+- MySQL 8 + Redis（登录态与限流计数）
+- Sa-Token 1.38（JWT 模式，请求头 `satoken`）
+- WebFlux WebClient（调模型 / MCP，连接池复用）
+- PDFBox 2.0.31 + POI-OOXML 5.2.5（文档解析）
+- 统一响应体 `{ code, message, data }`
 
-**Frontend**
+**前端**
+
 - Vue 3.4 + TypeScript + Vite 5
-- Pinia (state), Vue Router 4 (hash routing)
-- TailwindCSS 3 + SCSS (custom design tokens)
-- Element Plus (icons)
-- Electron 45 (optional desktop packaging)
+- Pinia（状态）、Vue Router 4（Hash 路由）
+- TailwindCSS 3 + SCSS（自定义 design token）
+- Element Plus（图标）
+- Electron 45（可选打包桌面端）
 
 ---
 
-## 3. Quick Start
+## 三、快速开始
 
-Prerequisites: **JDK 21, Maven, Node 18+, MySQL 8, Redis**.
+前置：**JDK 21、Maven、Node 18+、MySQL 8、Redis**。
 
-**No environment variables required**: every config has a default. Secret keys (JWT signing, API Key encryption) are auto-generated when left blank and persisted to the database table `t_system_secret` (or to `./data/` if the database is unavailable); the database itself is auto-created via `createDatabaseIfNotExist=true`.
+**无需设置任何环境变量**：所有配置都有默认值；密钥类（JWT 签名、API Key 加密密钥）留空时会自动生成并持久化到
+数据库 `t_system_secret`（数据库不可用时落盘到 `./data/`）；数据库不存在时由 `createDatabaseIfNotExist=true` 自动创建。
 
-### Option 1: One-command startup (recommended)
+### 方式一：一键启动（推荐）
 
 ```bash
-./start.sh            # start backend + frontend, print URLs once both are ready
-./start.sh stop       # stop
-./start.sh restart    # restart
-./start.sh status     # show status
-./start.sh logs       # tail backend + frontend logs (Ctrl+C exits the tail only)
+./start.sh            # 启动前后端，两端就绪后打印访问地址
+./start.sh stop       # 停止
+./start.sh restart    # 重启
+./start.sh status     # 查看运行状态
+./start.sh logs       # 实时跟踪前后端日志（Ctrl+C 只退出跟踪）
 ```
 
-The script handles: environment pre-check (Java/Maven/Node/MySQL/Redis), port conflict check, frontend dependency install (first run), backend health wait, rollback on startup failure, and log-location hints. To change ports: `BACKEND_PORT=8081 ./start.sh`.
+脚本会自动完成：环境预检（Java/Maven/Node/MySQL/Redis）、端口冲突检查、前端依赖安装（首次）、
+后端健康等待、启动失败回滚与日志定位提示。换端口用 `BACKEND_PORT=8081 ./start.sh`。
 
-### Option 2: Manual startup
+### 方式二：手动启动
 
 ```bash
-# Backend: http://localhost:8080
+# 后端：http://localhost:8080
 cd backend && mvn spring-boot:run
 
-# Frontend: http://localhost:5173
+# 前端：http://localhost:5173
 cd frontend && npm install && npm run dev
 ```
 
-### Access & accounts
+### 访问与账号
 
-- Frontend: <http://localhost:5173>; backend health check: `GET /api/health`
-- First-time use: click "Sign up" on the login page (auto-login after registration)
-- The frontend points to the backend via `VITE_API_BASE` in `frontend/.env`
+- 前端地址：<http://localhost:5173>，后端健康检查：`GET /api/health`
+- 首次使用在登录页点「立即注册」注册账号即可（注册后自动登录）
+- 前端通过 `frontend/.env` 的 `VITE_API_BASE` 指向后端地址
 
-### Default connection config
+### 默认连接配置
 
-| Item | Default | Override variable |
-|---|---|---|
-| MySQL | `localhost:3306/smart-client-db`, root/root | `MYSQL_HOST` `MYSQL_PORT` `MYSQL_DATABASE` `MYSQL_USER` `MYSQL_PASSWORD` |
-| Redis | `localhost:6379`, no password | `REDIS_HOST` `REDIS_PORT` `REDIS_PASSWORD` |
-| Backend port | 8080 | `APP_PORT` (deliberately not `SERVER_PORT`, to avoid accidental injection by containers / IDEs) |
+| 项       | 默认值                                      | 覆盖变量                                                     |
+| -------- | ------------------------------------------- | ------------------------------------------------------------ |
+| MySQL    | `localhost:3306/smart-client-db`，root/root | `MYSQL_HOST` `MYSQL_PORT` `MYSQL_DATABASE` `MYSQL_USER` `MYSQL_PASSWORD` |
+| Redis    | `localhost:6379`，无密码                    | `REDIS_HOST` `REDIS_PORT` `REDIS_PASSWORD`                   |
+| 后端端口 | 8080                                        | `APP_PORT`（刻意不用 `SERVER_PORT`，避免被容器/IDE 意外注入） |
 
-On startup, `spring.sql.init` automatically runs:
-- `db/schema.sql` — creates all business tables (including the `t_system_secret` key table)
-- `db/providers.sql` — seeds 17 providers (`INSERT IGNORE` + unique key, idempotent)
+启动时 `spring.sql.init` 自动执行：
+
+- `db/schema.sql` — 建全部业务表（含 `t_system_secret` 密钥表）
+- `db/providers.sql` — 灌入 17 家供应商种子（`INSERT IGNORE` + 唯一键，幂等）
 
 ---
 
-## 4. Directory Structure
+## 四、目录结构
 
 ```
 Smart-Client/
-├── backend/                      # Spring Boot backend
+├── backend/                      # Spring Boot 后端
 │   └── src/main/java/xz/sc/smartclient/
-│       ├── common/               # Unified response, exceptions, rate limiting, audit, secure codec, migrators
-│       ├── config/               # Sa-Token / MyBatis-Plus / secure transport / plugin market config
-│       ├── controller/           # REST controllers per module
-│       ├── entity/ mapper/       # Entities & MyBatis-Plus mappers
-│       ├── service/              # Business services (KB ingestion, MCP manager, etc.)
-│       ├── llm/                  # AgentRuntime, gateway factory, RAG, Embedding, MCP client
-│       │   └── provider/         # Built-in provider adapters (qwen/hunyuan/openai/dynamic/local fallback)
-│       ├── providers/            # Provider module (market/credentials/validation/model pull/protocol adapters)
-│       ├── workflow/             # Orchestration executor SPI & node implementations
-│       └── ops/                  # Policy engine, stat aggregation, trigger scheduling, plugin sync
-├── frontend/                     # Vue 3 frontend
+│       ├── common/               # 统一响应、异常、限流、审计、安全编解码与迁移器
+│       ├── config/               # Sa-Token / MyBatis-Plus / 安全传输 / 插件市场配置
+│       ├── controller/           # 各模块 REST 接口
+│       ├── entity/ mapper/       # 实体与 MyBatis-Plus Mapper
+│       ├── service/              # 业务服务（含知识库入库、MCP 管理器等）
+│       ├── llm/                  # AgentRuntime、网关工厂、RAG、Embedding、MCP 客户端
+│       │   └── provider/         # 内置供应商适配（qwen/hunyuan/openai/动态/本地兜底）
+│       ├── providers/            # 模型供应商模块（市场/凭证/校验/拉模型/协议适配）
+│       ├── workflow/             # 编排执行器 SPI 与各节点实现
+│       └── ops/                  # 策略引擎、统计汇总、触发器调度、插件同步
+├── frontend/                     # Vue 3 前端
 │   └── src/
-│       ├── api/                  # API wrappers per module
-│       ├── components/           # Reusable canvas, panels, drawers
-│       ├── views/                # Pages (agent/app/kb/skill/tools/providers/...)
-│       ├── stores/               # Pinia stores
-│       ├── styles/               # Global styles & design tokens
-│       └── router/ config/       # Routing & sidebar menu config
-├── doc/                          # Design docs & demo data
-├── scripts/                      # Helper scripts
-├── start.sh                      # One-command startup script
+│       ├── api/                  # 各模块接口封装
+│       ├── components/           # 画布、面板、抽屉等复用组件
+│       ├── views/                # 页面（agent/app/kb/skill/tools/providers/...）
+│       ├── stores/               # Pinia
+│       ├── styles/               # 全局样式与 design token
+│       └── router/ config/       # 路由与侧栏菜单配置
+├── doc/                          # 设计文档与 demo 数据
+├── scripts/                      # 辅助脚本
+├── start.sh                      # 一键启动脚本
 └── README.md
 ```
 
 ---
 
-## 5. Core Design
+## 五、核心设计
 
-### 1. Unified agent runtime assembly
+### 1. 智能体运行时统一装配
 
-`AgentRuntime.prepare(...)` is the single assembly entry point, building all context for one conversation in a fixed order:
+`AgentRuntime.prepare(...)` 是唯一装配入口，按固定顺序组装一次对话所需的全部上下文：
 
-1. **Policy check**: `PolicyEngine` runs guardrail and rate limiting first; a hit rejects the request immediately without consuming model quota
-2. **System prompt**: agent prompt + prompts from bound skills
-3. **RAG**: retrieve relevant chunks from bound knowledge bases and inject them into context (explicit warning when nothing matches; no fabricated references)
-4. **Model selection**: explicit modelId > agent-bound model > routing policy > frontend-specified provider > default model
-5. **MCP tools**: load tools from bound MCP services and their invocation bindings
-6. **Message assembly**: truncate history per the agent's configured length to keep long sessions bounded
+1. **策略校验**：`PolicyEngine` 在装配最前面执行护栏与限流，命中直接拒绝，不消耗模型额度
+2. **系统提示词**：智能体提示词 + 绑定的技能提示词
+3. **RAG**：检索绑定知识库的相关片段注入上下文（无命中时明确告警，不伪造参考资料）
+4. **模型选择**：显式 modelId > 智能体绑定模型 > 路由策略 > 前端指定供应商 > 默认模型
+5. **MCP 工具**：加载绑定的 MCP 服务工具及调用绑定
+6. **消息装配**：按智能体配置的历史条数截断，避免长会话无限膨胀
 
-When a model is unavailable, the runtime **fails explicitly** (disabled / offline / incomplete config / masked-key placeholder) instead of silently falling back, so "the switch didn't take effect" is never a mystery. Only when no real provider is configured at all does it fall back to a local demo mode, clearly stated in the reply.
+模型不可用时会**明确报错**（禁用 / 下线 / 配置不完整 / 脱敏密钥占位符），不做静默回退，
+避免「切换没生效」难以排查。仅在完全未配置真实供应商时回退本地演示模式，并在回复中显式提示。
 
-### 2. Workflow node executor SPI
+### 2. 工作流节点执行器 SPI
 
 ```
 NodeExecutor (type() + execute(NodeContext) → NodeResult)
-├── McpNodeExecutor      MCP_TOOL  pooled connections, retries, separate connect/invoke timing
-├── LlmNodeExecutor      LLM       temperature, system prompt, variable template rendering
-└── AgentNodeExecutor    AGENT     invokes another agent with its own prompt/skills/RAG/MCP assembly
+├── McpNodeExecutor      MCP_TOOL  连接池复用、重试、连接/调用耗时分离
+├── LlmNodeExecutor      LLM       支持温度、系统提示词、变量模板渲染
+└── AgentNodeExecutor    AGENT     调用另一个智能体，独立装配其提示词/技能/RAG/MCP
 ```
 
-- Other nodes (knowledge retrieval / code / branch / start / end) do not alter the existing chain — they simply "skip" and advance
-- Variable references go through `VariableResolver`, supporting paths such as `{{start.query}}` and `{{mcpResult.data}}`
-- Orchestration runs push SSE events: `start / step(running|success|failed|skipped) / failed / done / run-cancelled / error`
-- AGENT nodes enforce ownership isolation and self-invocation detection, preventing orchestration from borrowing another user's prompts and resources
-- Orchestration runs also write session logs, so the monitoring page shows real usage, failure rate and the actual model used across the chain
+- 其余节点（知识检索 / 代码 / 分支 / 开始 / 结束）不改变既有链路，只做「跳过」推进
+- 变量引用统一走 `VariableResolver`，支持 `{{start.query}}`、`{{mcpResult.data}}` 等路径
+- 编排运行以 SSE 推送 `start / step(running|success|failed|skipped) / failed / done / run-cancelled / error`
+- AGENT 节点做归属隔离与自调用检测，禁止透过编排借用他人智能体的提示词与资源
+- 编排运行同样落会话日志，监控页能看到编排链路的真实用量、失败率与实际模型
 
-### 3. Agent policies actually take effect
+### 3. Agent 策略真正生效
 
-The three policy types configured on the Integrations page are executed at runtime by `PolicyEngine` (previously CRUD-only and never read at runtime):
+集成页配置的三类策略在运行时由 `PolicyEngine` 执行（此前只有增删改查、运行时不读取）：
 
-| Type | Config | Behavior |
-|---|---|---|
-| guardrail | `blockKeywords` / `maxInputChars` | Keyword hit or overlong input → immediate `400` rejection |
-| limit | `maxRequestsPerMinute` | Rate limit per user + agent → `429` on excess |
-| routing | `modelId` | Use this model when none is explicitly specified |
+| 类型      | 配置项                            | 行为                               |
+| --------- | --------------------------------- | ---------------------------------- |
+| guardrail | `blockKeywords` / `maxInputChars` | 命中关键词或超长 → `400` 直接拦截  |
+| limit     | `maxRequestsPerMinute`            | 按用户+智能体维度限流 → 超限 `429` |
+| routing   | `modelId`                         | 未显式指定模型时改用该模型         |
 
-`t_agent_policy` has no `agent_id` column; policies are linked to agents via an `agentIds` array in config, and its absence means the policy applies to all agents of that user.
+`t_agent_policy` 无 `agent_id` 列，策略与智能体的关联通过 config 里的 `agentIds` 数组表达，缺省表示对该用户全部智能体生效。
 
-### 4. Model providers: config-driven
+### 4. 模型供应商：配置驱动
 
-- Only two protocol adapters exist — `OpenAiProtocolClient` / `AnthropicProtocolClient` — dispatched by the `provider.protocol` column; **writing a per-vendor Adapter is forbidden**
-- Providers, credential fields (JSON Schema) and models all come from the database: **adding a provider = one SQL insert, zero Java/frontend changes**
-- The frontend renders form controls dynamically from `credential_schema`; the backend validates required fields from the same source (double safeguard)
-- **Validate before persisting**: a minimal probe runs before install (GET /models → POST /chat/completions → timeout fallback); a failure leaves no dirty data
-- Provider validation is limited to 1 request / 5 seconds per workspace + provider (Redis INCR + EXPIRE)
-- Model pulling runs asynchronously on a dedicated thread pool; a failure only marks the status and does not affect credentials already stored
+- 只实现 `OpenAiProtocolClient` / `AnthropicProtocolClient` 两个协议适配器，由 `provider.protocol` 列驱动分发，**禁止按厂商写 Adapter**
+- 供应商、凭证字段（JSON Schema）、模型全部来自数据库：**新增一家供应商 = 插一条 SQL，Java/前端零改动**
+- 前端按 `credential_schema` 动态渲染 form 控件，后端同源做必填校验（双保险）
+- **先校验后落库**：安装前先打最小代价探测（GET /models → POST /chat/completions → 超时兜底），失败不产生脏数据
+- 同一 workspace + 供应商校验 5 秒 1 次（Redis INCR + EXPIRE）
+- 拉取模型用独立线程池异步执行，失败只标记状态，不影响凭证已落库
 
-### 5. Secrets & security
+### 5. 密钥与安全
 
-| Mechanism | Description |
-|---|---|
-| Field encryption | API Keys and similar fields are encrypted with AES-256-GCM (random 12B IV, base64(iv + ciphertext)), prefixed with `enc:v1:` |
-| Masked read-back | Output only shows `sk-****abcd`; sending the masked value back never overwrites the real key (detected by `****`) |
-| Secret custody | With no env injection, resolves as "database `t_system_secret` → `./data/*.key` → auto-generate", then writes into global config at startup |
-| Log masking | Authorization / API Keys are never printed; audit logs record operator and target resource ID |
-| Ownership isolation | Agents / skills / knowledge bases / models / MCP services are filtered by user and scope; unauthorized access is handled as "not found" |
-| Secure transport | When `TRANSPORT_SECURE_ENABLED=true`, raw frontend/backend payloads go through "compress → encrypt → Base64" |
+| 机制     | 说明                                                         |
+| -------- | ------------------------------------------------------------ |
+| 字段加密 | API Key 等字段 AES-256-GCM 加密入库（随机 12B IV，base64(iv+密文)），带 `enc:v1:` 前缀 |
+| 脱敏回显 | 出参只回显 `sk-****abcd`，原样回传不会覆盖真实密钥（按 `****` 判定） |
+| 密钥托管 | 未注入环境变量时按「数据库 `t_system_secret` → `./data/*.key` → 自动生成」解析，启动后写入全局配置 |
+| 日志脱敏 | 不打印 Authorization / API Key；审计日志记录操作人与目标资源 ID |
+| 归属隔离 | 智能体 / 技能 / 知识库 / 模型 / MCP 服务全部按用户与 scope 过滤，越权按「不存在」处理 |
+| 安全传输 | `TRANSPORT_SECURE_ENABLED=true` 时前后端原始数据按「压缩 → 加密 → Base64」传输 |
 
-### 6. Real knowledge-base retrieval chain
+### 6. 知识库真实检索链路
 
-- Ingestion: file → text extraction (PDF/Word/Excel/TXT/MD/CSV/JSON/HTML) → chunking → vectorization via embedding API → write slices, with SSE progress events
-- Retrieval: vectorize the query and score with cosine similarity
-- **When no embedding model is available, return null and automatically fall back to lexical search**, labeling the real mode in the result instead of disguising lexical search as vector search
-- Ingestion task state is persisted in `t_kb_document`, so tasks continue after the page is closed and progress can be resumed on re-entry
+- 入库：文件 → 文本抽取（PDF/Word/Excel/TXT/MD/CSV/JSON/HTML）→ 分段 → 调 embedding 接口向量化 → 写切片，SSE 推送进度
+- 检索：query 向量化后用余弦相似度打分
+- **没有可用向量模型时返回 null 并自动退回词法检索**，同时在结果里标注真实模式，不把词法检索伪装成向量检索
+- 入库任务状态持久化在 `t_kb_document`，页面关闭后任务继续，重新进入可续看进度
 
 ---
 
-## 6. Main Endpoints
+## 六、主要接口
 
-Unified prefix `/api`, authenticated via the `satoken` request header (returned after login), with the unified response body `{ code, message, data }`.
+统一前缀 `/api`，认证方式为请求头 `satoken`（登录后返回），响应体统一 `{ code, message, data }`。
 
-| Module | Prefix | Description |
-|---|---|---|
-| Auth | `/api/auth` | Sign up / login / logout / current user |
-| Chat | `/api/chat` | Session CRUD, message list, streaming `/stream`, prompt enhancement, stop, feedback |
-| Agents | `/api/agents` | CRUD, publish / take offline, copy, export, import from file / URL |
-| Orchestration | `/api/workflows` | Canvas read/write, run (SSE), stop, available variables, pre-publish check |
-| Apps | `/api/apps` | Access entries, publish / take offline, API Key, Web config, channel toggles, triggers |
-| Public entries | `/api/public/apps/{id}`, `/api/v1/apps/{id}/chat`, `/api/mcp/app/{id}` | Login-free Web / API / MCP entries, Webhook callbacks |
-| App ops | `/api/apps/{appId}/logs`, `/monitor`, `/annotations`, `/agent` | Logs, monitoring, annotations, app-specific chat |
-| Agent Forge | `/api/agent-forge` | Templates, create run, event stream, clarification, plan confirmation, cancel, publish |
-| Knowledge Base | `/api/knowledge-bases`, `/api/kb` | CRUD, documents, retrieval, upload, ingestion progress, pipelines, recall testing, stats, external API |
-| External KB | `/api/v1/datasets` | Public dataset retrieval API |
-| Skills | `/api/skills` | CRUD, publish / take offline, zip upload, file tree read/write |
-| MCP Services | `/api/mcp/services` | CRUD, tool list, sync, single-tool invoke & enable, test, import |
-| MCP Node | `/api/mcp` | Schema & debugging when selecting tools in orchestration nodes |
-| Model Access | `/api/models` | CRUD, enable, credentials, price per 1K tokens, publish / take offline |
-| Provider Market | `/api/providers` | Market, detail, pre-validation, install, installed list, change credentials, sync / add models, default model |
-| Capabilities | `/api/capabilities`, `/api/studio/apps/count` | Capability Hub aggregation, My Capabilities, app count |
-| Integrations | `/api/integrations` | Triggers, policies, extensions, custom endpoints, members |
-| Trigger Catalog | `/api/triggers` | Catalog of available trigger types |
-| Plugin Market | `/api/plugin-market` | Entries, sync, install, whitelist, icons |
-| Testing | `/api/test/chat`, `/api/mcp/{id}/invoke`, `/api/skills/{id}/run`, `/api/kb/{id}/search` | Debug entries for each capability |
-| Docs | `/api/docs` | Document collaboration |
+| 模块       | 前缀                                                         | 说明                                                         |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 认证       | `/api/auth`                                                  | 注册 / 登录 / 登出 / 当前用户                                |
+| 对话       | `/api/chat`                                                  | 会话 CRUD、消息列表、流式对话 `/stream`、提示词增强、停止、反馈 |
+| 智能体     | `/api/agents`                                                | CRUD、发布 / 下线、复制、导出、从文件 / URL 导入             |
+| 编排       | `/api/workflows`                                             | 画布读写、运行（SSE）、停止、可用变量、发布前检查            |
+| 应用       | `/api/apps`                                                  | 访问入口、发布 / 下线、API Key、Web 配置、频道开关、触发器   |
+| 公开入口   | `/api/public/apps/{id}`、`/api/v1/apps/{id}/chat`、`/api/mcp/app/{id}` | 免登录 Web / API / MCP 入口，Webhook 回调                    |
+| 应用运维   | `/api/apps/{appId}/logs`、`/monitor`、`/annotations`、`/agent` | 日志、监测、标注、应用专属对话                               |
+| 智能体生成 | `/api/agent-forge`                                           | 模板、创建运行、事件流、澄清、方案确认、取消、发布           |
+| 知识库     | `/api/knowledge-bases`、`/api/kb`                            | CRUD、文档、检索、上传、入库进度、流水线、召回测试、统计、外部 API |
+| 外部知识库 | `/api/v1/datasets`                                           | 对外开放的数据集检索接口                                     |
+| 技能       | `/api/skills`                                                | CRUD、发布 / 下线、zip 上传、文件树读写                      |
+| MCP 服务   | `/api/mcp/services`                                          | CRUD、工具清单、同步、单工具调用与启用、测试、导入           |
+| MCP 节点   | `/api/mcp`                                                   | 编排节点选工具时的 schema 与调试                             |
+| 模型接入   | `/api/models`                                                | CRUD、启用、凭据、每千 token 单价、发布 / 下线               |
+| 供应商市场 | `/api/providers`                                             | 市场、详情、预校验、安装、已安装、换凭证、同步 / 添加模型、默认模型 |
+| 能力       | `/api/capabilities`、`/api/studio/apps/count`                | 能力广场聚合、我的能力、应用计数                             |
+| 集成       | `/api/integrations`                                          | 触发器、策略、扩展、自定义端点、成员                         |
+| 触发器目录 | `/api/triggers`                                              | 可用触发器类型目录                                           |
+| 插件市场   | `/api/plugin-market`                                         | 条目、同步、安装、白名单、图标                               |
+| 测试       | `/api/test/chat`、`/api/mcp/{id}/invoke`、`/api/skills/{id}/run`、`/api/kb/{id}/search` | 各能力调试入口                                               |
+| 文档       | `/api/docs`                                                  | 文档协作                                                     |
 
-### Add a provider (SQL only)
+### 新增一家供应商（只改 SQL）
 
 ```sql
 INSERT IGNORE INTO provider
 (name, display_name, provider_group, icon, protocol, default_base_url,
  credential_schema, model_fetch_mode, official_url, doc_url, description, notes, sort, enabled)
 VALUES
-('xmodel', 'X Model', 'AGGREGATOR', 'X', 'OPENAI', 'https://api.xmodel.com/v1',
+('xmodel', '某某模型', 'AGGREGATOR', 'X', 'OPENAI', 'https://api.xmodel.com/v1',
  '{"type":"object","required":["apiKey"],
    "properties":{"apiKey":{"type":"string","format":"password","title":"API Key"},
-                 "baseUrl":{"type":"string","title":"Base URL",
+                 "baseUrl":{"type":"string","title":"接入地址",
                            "default":"https://api.xmodel.com/v1"}}}',
- 'REMOTE', 'https://xmodel.com', 'https://xmodel.com/docs', 'One-line intro', 'Integration notes (optional)', 2, 1);
+ 'REMOTE', 'https://xmodel.com', 'https://xmodel.com/docs', '一句话简介', '接入须知（选填）', 2, 1);
 ```
 
-Refresh the market page and the provider appears — no restart, no Java/frontend changes. Re-running the statement is harmless.
+刷新市场页即出现该供应商（无需重启、无需改任何 Java/前端代码）。重复执行不报错。
 
 ---
 
-## 7. Database Tables
+## 七、数据表一览
 
-Tables use the `t_` prefix (the provider module uses `provider*`). All tables and columns are commented, with a `deleted` soft-delete column.
+表名统一 `t_` 前缀（供应商模块为 `provider*`），所有表与字段均带注释，逻辑删除字段 `deleted`。
 
-| Group | Tables |
-|---|---|
-| System | `t_system_secret`, `t_user`, `t_workspace_member` |
-| Chat | `t_chat_session`, `t_chat_message`, `t_document` |
-| Models | `t_llm_model`, `provider`, `provider_credential`, `provider_model`, `provider_default_model` |
-| Agents | `t_agent`, `t_agent_version`, `t_agent_file`, `t_app_config`, `t_agent_policy`, `t_agent_tool_binding` |
-| Orchestration | `t_workflow`, `t_mcp_tool_cache`, `t_mcp_invoke_log` |
-| Knowledge Base | `t_knowledge_base`, `t_knowledge_doc`, `t_kb_document`, `t_kb_template` |
-| Skills | `t_skill`, `t_skill_file` |
-| MCP | `t_mcp_server`, `t_mcp_service` |
-| Ops | `t_conversation_log`, `t_stat_daily`, `t_annotation` |
-| Integrations | `t_trigger`, `t_extension`, `t_api_endpoint` |
-| Plugin Market | `t_plugin_market_item`, `t_plugin_market_whitelist`, `t_installed_plugin` |
-
----
-
-## 8. Scheduled Jobs
-
-| Job | Frequency | Description |
-|---|---|---|
-| `StatAggregator` | Daily at 00:10 | Aggregates the previous day's conversation logs into `t_stat_daily` for historical trends on the monitoring page |
-| `TriggerScheduler` | 20s after startup, polls every 30s | Executes due scheduled triggers |
-| `PluginSyncScheduler` | Daily at 03:00 | Syncs Dify plugin market entries |
+| 分组     | 表                                                           |
+| -------- | ------------------------------------------------------------ |
+| 系统     | `t_system_secret`、`t_user`、`t_workspace_member`            |
+| 对话     | `t_chat_session`、`t_chat_message`、`t_document`             |
+| 模型     | `t_llm_model`、`provider`、`provider_credential`、`provider_model`、`provider_default_model` |
+| 智能体   | `t_agent`、`t_agent_version`、`t_agent_file`、`t_app_config`、`t_agent_policy`、`t_agent_tool_binding` |
+| 编排     | `t_workflow`、`t_mcp_tool_cache`、`t_mcp_invoke_log`         |
+| 知识库   | `t_knowledge_base`、`t_knowledge_doc`、`t_kb_document`、`t_kb_template` |
+| 技能     | `t_skill`、`t_skill_file`                                    |
+| MCP      | `t_mcp_server`、`t_mcp_service`                              |
+| 运维     | `t_conversation_log`、`t_stat_daily`、`t_annotation`         |
+| 集成     | `t_trigger`、`t_extension`、`t_api_endpoint`                 |
+| 插件市场 | `t_plugin_market_item`、`t_plugin_market_whitelist`、`t_installed_plugin` |
 
 ---
 
-## 9. Production Deployment Notes
+## 八、定时任务
 
-Variables that must be explicitly injected:
-
-| Variable | Purpose | If not injected |
-|---|---|---|
-| `PROVIDER_AES_KEY` | Encrypts fields such as `t_llm_model.api_key` | Key and ciphertext live in the same DB; a full DB dump decrypts every key |
-| `SA_JWT_SECRET` | Login token signing | Same as above: the key is stored in the DB, and multiple instances must share the same storage |
-| `TRANSPORT_SECRET_KEY` | Secure transport codec (only needed when `TRANSPORT_SECURE_ENABLED=true`) | Startup fails when that feature is enabled |
-| `APP_SECURITY_STRICT` | When `true`, missing keys above fail startup | Defaults to `false`: warn only, do not block |
-| `APP_CORS_ALLOWED_ORIGINS` | Allowed CORS origins | Defaults to `*`, suitable for development only |
-
-**After switching the key source, do not delete old key records / files**, or historical ciphertext and already-issued tokens become unrecoverable.
-
-Model credentials (optional, for auto-seeding public models): `QWEN_BASE_URL` `QWEN_API_KEY` `QWEN_MODEL`
-`HUNYUAN_BASE_URL` `LLM_API_KEY` `OPENAI_BASE_URL` `OPENAI_API_KEY` `OPENAI_MODEL`.
+| 任务                  | 频率                     | 说明                                                    |
+| --------------------- | ------------------------ | ------------------------------------------------------- |
+| `StatAggregator`      | 每天 00:10               | 汇总前一日会话日志到 `t_stat_daily`，供监控页看历史趋势 |
+| `TriggerScheduler`    | 启动 20s 后，每 30s 轮询 | 执行到期的定时触发器                                    |
+| `PluginSyncScheduler` | 每天 03:00               | 同步 Dify 插件市场条目                                  |
 
 ---
 
-## 10. Known Trade-offs
+## 九、生产部署注意事项
 
-1. **The openai-java SDK is not used**: its dependencies conflict with Boot 3.3.5 version coupling. The protocol layer is implemented directly on a unified WebClient (pooling / timeouts / redirects disabled), equivalently covering the "official SDK + WebClient" requirement.
-2. **The manual add-model endpoint is an out-of-spec extension**: Anthropic (no `/models`), Volcengine Ark (`ep-` endpoints) and Ollama (MANUAL) all rely on it to close the loop.
-3. **Publishing to the Capability Hub**: `t_llm_model` stores only masked keys (to avoid a second plaintext write); real chat calls decrypt credentials at the invocation layer. If a key is written as a masked placeholder, the call fails explicitly instead of returning a mysterious 401.
-4. **Local demo fallback**: with no real provider configured at all, it falls back to `LocalProvider` and explicitly declares "local demo mode" in the reply body — never disguised as real model output.
+需要显式注入的变量：
+
+| 变量                       | 作用                                                        | 不注入的后果                                   |
+| -------------------------- | ----------------------------------------------------------- | ---------------------------------------------- |
+| `PROVIDER_AES_KEY`         | 加密 `t_llm_model.api_key` 等字段                           | 密钥与密文同库，整库导出即可解密全部 Key       |
+| `SA_JWT_SECRET`            | 登录令牌签名                                                | 同上：密钥托管在库中，且多实例需共用同一份存储 |
+| `TRANSPORT_SECRET_KEY`     | 安全传输编解码（仅 `TRANSPORT_SECURE_ENABLED=true` 时需要） | 开启该功能时会启动失败                         |
+| `APP_SECURITY_STRICT`      | 设为 `true` 时上述密钥缺失直接启动失败                      | 默认 `false`，只告警不阻断                     |
+| `APP_CORS_ALLOWED_ORIGINS` | 允许的跨域来源                                              | 默认 `*`，仅适合开发环境                       |
+
+**切换密钥来源后不要删除旧的密钥记录 / 文件**，否则历史密文与已签发令牌将无法恢复。
+
+模型凭据（可选，用于自动播种公共模型）：`QWEN_BASE_URL` `QWEN_API_KEY` `QWEN_MODEL`
+`HUNYUAN_BASE_URL` `LLM_API_KEY` `OPENAI_BASE_URL` `OPENAI_API_KEY` `OPENAI_MODEL`。
 
 ---
 
-## 11. Development Conventions
+## 十、已知取舍
 
-- Frontend type check: `cd frontend && npx vue-tsc --noEmit -p tsconfig.json` (the `-p` flag is required)
-- Frontend build: `npm run build` (type check first, then vite build)
-- Backend compile: `cd backend && mvn -o compile -DskipTests`
-- Backend tests: `cd backend && mvn -o test`
-- Style: reuse existing components and design tokens (`--primary #2f6bff`, etc.); do not add third-party dependencies or hard-override color values
+1. **未引入 openai-java SDK**：其依赖与 Boot 3.3.5 存在版本耦合，协议层直接用统一 WebClient（连接池 / 超时 / 禁用重定向）实现，等价覆盖「官方 SDK + WebClient」诉求。
+2. **手动添加模型接口为规格外扩展**：Anthropic（无 `/models`）、火山方舟（`ep-` 接入点）、Ollama（MANUAL）均依赖它完成闭环。
+3. **发布到能力广场**：`t_llm_model` 中仅存脱敏 Key（避免明文二次入库），真实聊天调用由凭证体系在调用层解密接入；若密钥被写成脱敏占位符，调用时会明确报错而不是返回 401 让用户猜。
+4. **本地演示兜底**：完全未配置真实供应商时回退 `LocalProvider`，只在回复正文里显式声明「本地演示模式」，不会伪装成真实模型输出。
+
+---
+
+## 十一、开发约定
+
+- 前端类型校验：`cd frontend && npx vue-tsc --noEmit -p tsconfig.json`（必须带 `-p`）
+- 前端构建：`npm run build`（先类型校验再 vite build）
+- 后端编译：`cd backend && mvn -o compile -DskipTests`
+- 后端测试：`cd backend && mvn -o test`
+- 风格：复用项目现有组件与 design token（`--primary #2f6bff` 等），不新增第三方依赖、不硬覆盖色值
